@@ -8,7 +8,7 @@ here = path.abspath(path.dirname(__file__))
 
 setup(
     name="pycoolmaster",
-    version="0.1.4",
+    version="0.1.5",
     description="Lightweight Python API for older (RS232-only) CoolMaster HVAC bridges",
     author="Issac Goldstand",
     author_email="margol@beamartyr.net",
@@ -22,7 +22,9 @@ setup(
         "Topic :: Home Automation",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    install_requires=[],
+    install_requires=[
+        "pyserial"
+    ],
     zip_safe=True,
     keywords="hvac homeautomation",
 )
