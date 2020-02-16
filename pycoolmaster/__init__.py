@@ -53,25 +53,25 @@ class CoolMaster(object):
     def _make_request(self, request):
         """Send a request to the CoolMaster and returns the response."""
         with serial.Serial(self._port, self._baud, timeout = self._read_timeout) as ser:
-        try:
-            if ser.read_until(b">") != b">":
-                raise Exception("CoolMaster prompt not found")
+            try:
+                if ser.read_until(b">") != b">":
+                    raise Exception("CoolMaster prompt not found")
 
-            request = request + "\n"
-            ser.write(request.encode("ascii"))
+                request = request + "\n"
+                ser.write(request.encode("ascii"))
 
-            response = tn.read_until(b"\n>", self._read_timeout)
-            response = response.decode("ascii")
+                response = tn.read_until(b"\n>", self._read_timeout)
+                response = response.decode("ascii")
 
-            if response.endswith("\n>"):
-                response = response[:-1]
+                if response.endswith("\n>"):
+                    response = response[:-1]
 
-            if response.endswith("OK\r\n"):
-                response = response[:-4]
+                if response.endswith("OK\r\n"):
+                    response = response[:-4]
 
-            return response
-        finally:
-            ser.close()
+                return response
+            finally:
+                ser.close()
 
     def devices(self):
         """Return a list of CoolMasterDevice objects representing the
