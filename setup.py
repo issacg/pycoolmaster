@@ -11,7 +11,7 @@ with open(path.join(here, "README.md"), encoding="utf-8") as f:
 
 setup(
     name="pycoolmaster",
-    version="0.1.0",
+    version="0.1.1",
     description="Lightweight Python API for older (RS232-only) CoolMaster HVAC bridges",
     long_description=long_description,
     author="Issac Goldstand",
