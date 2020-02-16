@@ -5,11 +5,15 @@ from setuptools import setup, find_packages
 
 here = path.abspath(path.dirname(__file__))
 
+# Get the long description from the README file
+with open(path.join(here, "README.rst"), encoding="utf-8") as f:
+    long_description = f.read()
 
 setup(
     name="pycoolmaster",
-    version="0.1.3",
+    version="0.1.4",
     description="Lightweight Python API for older (RS232-only) CoolMaster HVAC bridges",
+    long_description=long_description,
     author="Issac Goldstand",
     author_email="margol@beamartyr.net",
     url="http://github.com/issacg/pycoolmaster",
