@@ -131,7 +131,6 @@ class CoolMasterDevice(object):
 
         # Status line looks like
         # 101 OFF 32C 04,93C Low  Dry  OK 1
-        # L7.001 ON  073.0F 077.7F Low  Cool OK   - 0
         fields = re.split(r"\s+", status_line.strip())
         if len(fields) != 8:
             raise Exception("Unexpected status line format: " + str(fields))
