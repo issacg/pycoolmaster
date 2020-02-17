@@ -41,7 +41,7 @@ def autoupdate_property(func):
 
 
 class CoolMaster(object):
-    def __init__(self, port, baud=9600, read_timeout=1, auto_update=True):
+    def __init__(self, port, baud=9600, read_timeout=5, auto_update=True):
         """Initialize this CoolMaster instance to connect to a particular
         RS232 port at a particular baud."""
         self._port = port
@@ -49,29 +49,52 @@ class CoolMaster(object):
         self._baud = baud
         self._read_timeout = read_timeout
         self._auto_update = auto_update
+        self._ser = None
+    
+    def __del__(self):
+        """Close the RS232 port (if open)"""
+        if self._ser is not None:
+            try:
+                self._ser.close()
+            except serial.serialutil.SerialException:
+                pass 
+
+    def _open(self):
+        """Lazy connect the RS232 port"""
+        if self._ser is None:
+            self._ser = serial.Serial(self._port, self._baud, timeout = self._read_timeout)
+
+        try:
+            self._ser.open()
+        except serial.serialutil.SerialException:
+            pass    
 
     def _make_request(self, request):
         """Send a request to the CoolMaster and returns the response."""
-        with serial.Serial(self._port, self._baud, timeout = self._read_timeout) as ser:
-            try:
-                if ser.read_until(b">") != b">":
-                    raise Exception("CoolMaster prompt not found")
+        self._open()
 
-                request = request + "\n"
-                ser.write(request.encode("ascii"))
+        try:
+            self._ser.write(b"\r\n")
+            if self._ser.read_until(b">") != b"\r\n>":
+                raise Exception("CoolMaster prompt not found")
 
-                response = tn.read_until(b"\n>", self._read_timeout)
-                response = response.decode("ascii")
+            request = request + "\r\n"
+            self._ser.write(request.encode("ascii"))
+            # Echoed text
+            self._ser.read_until(request.encode("ascii"))
+            # Response
+            response = self._ser.read_until(b"\r\n>")
+            response = response.decode("ascii")
 
-                if response.endswith("\n>"):
-                    response = response[:-1]
+            if response.endswith("\r\n>"):
+                response = response[:-1]
 
-                if response.endswith("OK\r\n"):
-                    response = response[:-4]
+            if response.endswith("OK\r\n"):
+                response = response[:-4]
 
-                return response
-            finally:
-                ser.close()
+            return response
+        finally:
+            self._ser.close()
 
     def devices(self):
         """Return a list of CoolMasterDevice objects representing the
@@ -116,12 +139,14 @@ class CoolMasterDevice(object):
         self._is_on = fields[1] == "ON"
         self._unit = "imperial" if fields[2][-1] == "F" else "celsius"
         self._thermostat = float(fields[2][:-1])
-        self._temperature = float(fields[3][:-1])
+        self._temperature = float(fields[3][:-1].replace(",","."))
         self._fan_speed = fields[4].lower()
         self._mode = fields[5].lower()
 
         swing_line = self._bridge._make_request("query {} s".format(self._uid))
-        self._swing_mode = _SWING_CHAR_TO_NAME[swing_line.strip()]
+        self._swing_mode = None
+        if swing_line != "":
+            self._swing_mode = _SWING_CHAR_TO_NAME[swing_line.strip()]
 
         self._last_refresh_time = time.time()
 
