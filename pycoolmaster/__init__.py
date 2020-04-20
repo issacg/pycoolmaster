@@ -61,7 +61,6 @@ class CoolMaster(object):
         """Lazy connect the RS232 port"""
         if self._ser is None:
             self._ser = serial.Serial(self._port, self._baud, timeout = self._read_timeout)
-            self._ser.open()
         elif not self._keep_open:
             self._ser.open()
 
