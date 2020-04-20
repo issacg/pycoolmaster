@@ -41,7 +41,7 @@ def autoupdate_property(func):
 
 
 class CoolMaster(object):
-    def __init__(self, port, baud=9600, read_timeout=5, auto_update=True):
+    def __init__(self, port, baud=9600, read_timeout=5, auto_update=True, keep_open=True):
         """Initialize this CoolMaster instance to connect to a particular
         RS232 port at a particular baud."""
         self._port = port
@@ -49,25 +49,21 @@ class CoolMaster(object):
         self._baud = baud
         self._read_timeout = read_timeout
         self._auto_update = auto_update
+        self._keep_open = keep_open
         self._ser = None
     
     def __del__(self):
-        """Close the RS232 port (if open)"""
+        """Destruct object and close the RS232 port (if open)"""
         if self._ser is not None:
-            try:
-                self._ser.close()
-            except serial.serialutil.SerialException:
-                pass 
+            self._ser.close()
 
     def _open(self):
         """Lazy connect the RS232 port"""
         if self._ser is None:
             self._ser = serial.Serial(self._port, self._baud, timeout = self._read_timeout)
-
-        try:
             self._ser.open()
-        except serial.serialutil.SerialException:
-            pass    
+        elif not self._keep_open:
+            self._ser.open()
 
     def _make_request(self, request):
         """Send a request to the CoolMaster and returns the response."""
@@ -94,7 +90,8 @@ class CoolMaster(object):
 
             return response
         finally:
-            self._ser.close()
+            if not self._keep_open:
+                self._ser.close()
 
     def devices(self):
         """Return a list of CoolMasterDevice objects representing the
