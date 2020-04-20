@@ -5,3 +5,4 @@ __pycache__/
 README.rst
 .*.swp
 *.pyc
+.pypirc
