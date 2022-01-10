@@ -7,8 +7,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: Build backup
+    name: Publish
     steps:
+    - name: Checkout the repository
+      uses: actions/checkout@v2
     - name: Install dependencies
       run: pip install wheel
     - name: Build package
