@@ -8,7 +8,7 @@ here = path.abspath(path.dirname(__file__))
 
 setup(
     name="pycoolmaster",
-    version="0.2.1",
+    version="0.2.2",
     description="Lightweight Python API for older (RS232-only) CoolMaster HVAC bridges",
     author="Issac Goldstand",
     author_email="margol@beamartyr.net",
