@@ -105,6 +105,11 @@ class CoolMaster(object):
             for line in status_lines
         ]
 
+    def info(self):
+        """Get the general info the this CoolMaster."""
+        lines = self._make_request("set").strip().split("\r\n")
+        key_values = [re.split(r"\s*:\s*", line, 1) for line in lines]
+        return dict(key_values)
 
 class CoolMasterDevice(object):
     """A device attached to a CoolMaster bridge.
